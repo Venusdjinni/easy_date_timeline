@@ -44,6 +44,7 @@ final class EasyDatePickerController extends ScrollController
       itemExtent: _timelineState!._itemExtent,
       firstDate: _widget.firstDate,
       lastDate: date,
+      timeLineMode: _widget.timeLineMode,
       selectionMode: _widget.selectionMode,
       timelinePadding: _widget.timelineOptions.padding,
     );

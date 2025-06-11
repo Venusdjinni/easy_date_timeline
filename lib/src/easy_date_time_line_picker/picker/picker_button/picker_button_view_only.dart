@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'dart:math' as math show max;
 
+import '../../../../easy_date_timeline.dart';
 import '../../utils/utils.exports.dart';
 
 const double _innerPadding = 4.0;
@@ -22,12 +23,14 @@ class PickerButtonViewOnly extends StatelessWidget {
   /// - [date]: The date to be displayed.
   /// - [local]: The locale used for formatting the date.
   /// - [timelinePadding]: The padding around the timeline.
+  /// - [timeLineMode]: The timeline mode used to display dates.
 
   const PickerButtonViewOnly({
     super.key,
     required this.date,
     required this.local,
     required this.timelinePadding,
+    required this.timeLineMode,
   });
 
   /// The date to be displayed.
@@ -38,6 +41,9 @@ class PickerButtonViewOnly extends StatelessWidget {
 
   /// The padding around the timeline.
   final EdgeInsets timelinePadding;
+
+  /// The timeLineMode used to display the correct date picked
+  final EasyDateTimeLinePickerMode timeLineMode;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +63,13 @@ class PickerButtonViewOnly extends StatelessWidget {
               children: [
                 Flexible(
                   child: Text(
-                    DateFormat(DateFormatUtils.dMonthY, local).format(date),
+                    DateFormat(
+                      switch (timeLineMode) {
+                        EasyDateTimeLinePickerMode.days => DateFormatUtils.dMonthY,
+                        EasyDateTimeLinePickerMode.months => DateFormatUtils.monthY,
+                      },
+                      local
+                    ).format(date),
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),

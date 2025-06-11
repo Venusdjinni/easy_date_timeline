@@ -18,6 +18,9 @@ extension DateTimeExtensions on DateTime {
   DateTime addDays(int days) =>
       DateTime(year, month, day + days, hour, minute, second, millisecond);
 
+  DateTime addMonths(int months) =>
+      DateTime(year, month + months, day, hour, minute, second, millisecond);
+
   /// Calculates the original time duration from the focus date.
   Duration calculateOriginalTime(DateTime focusDate) {
     return Duration(
@@ -35,5 +38,17 @@ extension DateTimeExtensions on DateTime {
     final differencesInHours =
         normalizedLast.difference(normalizedFirst).inHours;
     return (differencesInHours / Duration.hoursPerDay).round() + 1;
+  }
+
+  int monthsBetween(DateTime other) {
+    final normalizedFirst = normalized;
+    final normalizedLast = other.normalized.copyWith(second: 1);
+
+    int numberOfMonths = 0;
+    while (normalizedFirst.addMonths(numberOfMonths).isBefore(normalizedLast)) {
+      numberOfMonths++;
+    }
+
+    return numberOfMonths;
   }
 }

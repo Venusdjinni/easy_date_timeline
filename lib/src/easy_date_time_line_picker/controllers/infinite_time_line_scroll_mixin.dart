@@ -1,3 +1,4 @@
+import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:easy_date_timeline/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import '../sealed_classes/sealed_classes.exports.dart';
@@ -28,6 +29,19 @@ mixin InfiniteTimeLineScrollMixin on ScrollController {
     return (differencesInHours / Duration.hoursPerDay).round();
   }
 
+  /// Calculate the months difference between two dates
+  int _calculateMonthsDifference(DateTime first, DateTime last) {
+    final normalizedFirst = first.normalized;
+    final normalizedLast = last.normalized;
+
+    int numberOfMonths = 0;
+    while (normalizedFirst.addMonths(numberOfMonths).isBefore(normalizedLast)) {
+      numberOfMonths++;
+    }
+
+    return numberOfMonths;
+  }
+
   /// Calculate scroll offset adjustments for centering
   double _calculateCenteringOffset({
     required double itemExtent,
@@ -43,6 +57,7 @@ mixin InfiniteTimeLineScrollMixin on ScrollController {
     DateTime firstDate,
     DateTime lastDate,
     double itemExtent,
+    EasyDateTimeLinePickerMode timeLineMode,
   ) {
     final cacheKey = _generateCacheKey(firstDate, lastDate, itemExtent);
 
@@ -50,7 +65,10 @@ mixin InfiniteTimeLineScrollMixin on ScrollController {
       return _datePositionCache[cacheKey]!;
     }
 
-    final daysDifference = _calculateDaysDifference(firstDate, lastDate);
+    final daysDifference = switch (timeLineMode) {
+      EasyDateTimeLinePickerMode.days => _calculateDaysDifference(firstDate, lastDate),
+      EasyDateTimeLinePickerMode.months => _calculateMonthsDifference(firstDate, lastDate),
+    };
     final position = daysDifference * itemExtent;
 
     if (_datePositionCache.length >= _maxCacheSize) {
@@ -66,12 +84,14 @@ mixin InfiniteTimeLineScrollMixin on ScrollController {
     required double itemExtent,
     required DateTime firstDate,
     required DateTime lastDate,
+    required EasyDateTimeLinePickerMode timeLineMode,
     required EdgeInsets padding,
   }) {
     final basePosition = _getCachedOrCalculatePosition(
       firstDate,
       lastDate,
       itemExtent,
+      timeLineMode,
     );
 
     final centeringOffset = _calculateCenteringOffset(
@@ -87,12 +107,14 @@ mixin InfiniteTimeLineScrollMixin on ScrollController {
     required double itemExtent,
     required DateTime firstDate,
     required DateTime lastDate,
+    required EasyDateTimeLinePickerMode timeLineMode,
     required EdgeInsets padding,
   }) {
     final basePosition = _getCachedOrCalculatePosition(
       firstDate,
       lastDate,
       itemExtent,
+      timeLineMode,
     );
     //Ensure scroll offset stays within bounds
     return (basePosition + padding.left).clamp(0.0, _maxScrollExtent);
@@ -104,6 +126,7 @@ mixin InfiniteTimeLineScrollMixin on ScrollController {
     required double itemExtent,
     required DateTime firstDate,
     required DateTime lastDate,
+    required EasyDateTimeLinePickerMode timeLineMode,
     required SelectionMode selectionMode,
     required EdgeInsets timelinePadding,
   }) {
@@ -114,12 +137,14 @@ mixin InfiniteTimeLineScrollMixin on ScrollController {
           itemExtent: itemExtent,
           firstDate: firstDate,
           lastDate: lastDate,
+          timeLineMode: timeLineMode,
           padding: timelinePadding,
         ),
       SelectionModeAutoCenter() => _calculateCenteredPosition(
           itemExtent: itemExtent,
           firstDate: firstDate,
           lastDate: lastDate,
+          timeLineMode: timeLineMode,
           padding: timelinePadding,
         ),
     };

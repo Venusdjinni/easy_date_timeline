@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'disable_strategy/strategies.dart';
+import 'enums/easy_date_timeline_picker_mode.dart';
 import 'options/options.exports.dart';
 import 'sealed_classes/sealed_classes.exports.dart';
 import 'theme/theme.exports.dart';
@@ -44,6 +45,7 @@ class EasyDateTimeLinePicker extends StatelessWidget {
     this.timelineOptions,
     this.headerOptions = const HeaderOptions(),
     this.monthYearPickerOptions = const MonthYearPickerOptions(),
+    this.timeLineMode = EasyDateTimeLinePickerMode.days,
   })  : _itemBuilder = null,
         firstDate = firstDate.toDateOnly(),
         lastDate = lastDate.toDateOnly(),
@@ -85,6 +87,7 @@ class EasyDateTimeLinePicker extends StatelessWidget {
     this.timelineOptions = const TimelineOptions(),
     this.monthYearPickerOptions = const MonthYearPickerOptions(),
     this.headerOptions = const HeaderOptions(),
+    this.timeLineMode = EasyDateTimeLinePickerMode.days,
   })  : _itemBuilder = itemBuilder,
         _dayElementsOrder = const [],
         firstDate = firstDate.toDateOnly(),
@@ -385,6 +388,14 @@ class EasyDateTimeLinePicker extends StatelessWidget {
 
   final HeaderOptions headerOptions;
 
+  /// {@template timeline_mode}
+  /// Defines the type of items displayed in the timeline.
+  /// Use EasyDateTimeLinePickerMode.days (default) will display days of the month,
+  /// and EasyDateTimeLinePickerMode.month will display each month of year as a single entry
+  /// {@endtemplate}
+
+  final EasyDateTimeLinePickerMode timeLineMode;
+
   @override
   Widget build(BuildContext context) {
     final easyTheme = EasyTheme.of(context);
@@ -417,6 +428,7 @@ class EasyDateTimeLinePicker extends StatelessWidget {
       timelineOptions: effectiveTimelineOptions,
       headerType: headerOptions.headerType,
       monthYearPickerOptions: monthYearPickerOptions,
+      timeLineMode: timeLineMode,
     );
   }
 }

@@ -16,9 +16,8 @@ class EasyDateTimelineLocalizationsPt extends EasyDateTimelineLocalizations {
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
-class EasyDateTimelineLocalizationsPtBr
-    extends EasyDateTimelineLocalizationsPt {
-  EasyDateTimelineLocalizationsPtBr() : super('pt_BR');
+class EasyDateTimelineLocalizationsPtBr extends EasyDateTimelineLocalizationsPt {
+  EasyDateTimelineLocalizationsPtBr(): super('pt_BR');
 
   @override
   String get okButtonLabel => 'OK';

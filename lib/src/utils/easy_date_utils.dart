@@ -15,6 +15,11 @@ abstract class EasyDateUtils {
     return DateUtils.isSameDay(dateA, dateB);
   }
 
+  /// Returns whether the given two dates represent the same day or not.
+  static bool isSameMonth(DateTime dateA, DateTime dateB) {
+    return DateUtils.isSameMonth(dateA, dateB);
+  }
+
   /// Returns a list of `EasyMonth` objects representing the 12 months of the year in the specified locale.
   static List<EasyMonth> getYearMonths(DateTime date, String locale) {
     final List<EasyMonth> months = [];
@@ -44,6 +49,13 @@ abstract class EasyDateUtils {
   static bool isToday(DateTime date) {
     DateTime now = DateTime.now();
     return isSameDay(now, date);
+  }
+
+  /// function that takes a DateTime object as input and returns a boolean value
+  /// indicating whether it is the current date month or not.
+  static bool isTodayMonth(DateTime date) {
+    DateTime now = DateTime.now();
+    return isSameMonth(now, date);
   }
 
   /// Calculates the number of days between the [firstDate] and [lastDate] inclusive.

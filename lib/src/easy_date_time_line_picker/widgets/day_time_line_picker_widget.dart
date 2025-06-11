@@ -10,6 +10,7 @@ import '../options/options.exports.dart';
 import '../sealed_classes/sealed_classes.exports.dart';
 import '../utils/utils.exports.dart';
 import 'day_widget/day_widget.dart';
+import 'month_widget/month_widget.dart';
 import '../picker/month_year_picker.dart';
 import '../picker/picker_button/picker_button.dart';
 import '../picker/picker_button/picker_button_view_only.dart';
@@ -41,6 +42,7 @@ class DayTimeLinePickerWidget extends StatefulWidget {
     required this.dayPartsOrder,
     required this.headerType,
     required this.monthYearPickerOptions,
+    required this.timeLineMode,
   });
 
   ///{@macro controller}
@@ -100,6 +102,9 @@ class DayTimeLinePickerWidget extends StatefulWidget {
   /// {@macro month_year_picker_options}
   final MonthYearPickerOptions monthYearPickerOptions;
 
+  /// {@macro timeline_mode}
+  final EasyDateTimeLinePickerMode timeLineMode;
+
   @override
   State<DayTimeLinePickerWidget> createState() =>
       _DayTimeLinePickerWidgetState();
@@ -113,6 +118,13 @@ class _DayTimeLinePickerWidgetState extends State<DayTimeLinePickerWidget> {
       widget.controller ?? _internalController!;
   DateTime? _selectedDate;
 
+  int get getItemCount {
+    return switch (widget.timeLineMode) {
+      EasyDateTimeLinePickerMode.days => widget.firstDate.daysBetween(widget.lastDate),
+      EasyDateTimeLinePickerMode.months => widget.firstDate.monthsBetween(widget.lastDate),
+    };
+  }
+
   @override
   void initState() {
     super.initState();
@@ -121,7 +133,7 @@ class _DayTimeLinePickerWidgetState extends State<DayTimeLinePickerWidget> {
     // Calculate the total extent of each item including padding
     _itemExtent = widget.itemExtent + widget.separatorPadding;
     // Calculate the total number of days in the date range
-    _itemCount = widget.firstDate.daysBetween(widget.lastDate);
+    _itemCount = getItemCount;
     // _itemCount =
     //     EasyDateUtils.getDaysBetween(widget.firstDate, widget.lastDate);
     // Create an internal controller if not provided
@@ -172,7 +184,7 @@ class _DayTimeLinePickerWidgetState extends State<DayTimeLinePickerWidget> {
     // Update item count if date range changes
     if (widget.firstDate != oldWidget.firstDate ||
         widget.lastDate != oldWidget.lastDate) {
-      _itemCount = widget.firstDate.daysBetween(widget.lastDate);
+      _itemCount = getItemCount;
       // _itemCount =
       //     EasyDateUtils.getDaysBetween(widget.firstDate, widget.lastDate);
     }
@@ -221,12 +233,14 @@ class _DayTimeLinePickerWidgetState extends State<DayTimeLinePickerWidget> {
                 timelinePadding: widget.timelineOptions.padding,
                 date: widget.focusedDate,
                 local: widget.locale,
+                timeLineMode: widget.timeLineMode,
               ),
             HeaderType.picker => PickerButton(
                 onPressed: () => _showMonthYearPicker(context),
                 timelinePadding: widget.timelineOptions.padding,
                 date: widget.focusedDate,
                 local: widget.locale,
+                timeLineMode: widget.timeLineMode,
               ),
             HeaderType.none => const SizedBox.shrink(),
           },
@@ -250,44 +264,85 @@ class _DayTimeLinePickerWidgetState extends State<DayTimeLinePickerWidget> {
                   sliver: SliverFixedExtentList.builder(
                     itemExtent: _itemExtent,
                     itemBuilder: (context, index) {
-                      final date =
-                          DateUtils.addDaysToDate(widget.firstDate, index);
+                      switch (widget.timeLineMode) {
+                        case EasyDateTimeLinePickerMode.days:
+                          final date =
+                            DateUtils.addDaysToDate(widget.firstDate, index);
 
-                      final isSelected =
-                          DateUtils.isSameDay(widget.focusedDate, date);
+                          final isSelected =
+                            DateUtils.isSameDay(widget.focusedDate, date);
 
-                      // flag indicating whether the day is disabled or not.
-                      final isDisabledDay =
-                          widget.disableStrategy.isDisabled(date);
+                          // flag indicating whether the day is disabled or not.
+                          final isDisabledDay =
+                            widget.disableStrategy.isDisabled(date);
 
-                      // flag indicating whether the day is current day or not.
-                      final isToday =
-                          DateUtils.isSameDay(widget.currentDate, date);
+                          // flag indicating whether the day is current day or not.
+                          final isToday =
+                            DateUtils.isSameDay(widget.currentDate, date);
 
-                      return Padding(
-                        key: ValueKey<DateTime>(date.toDateOnly()),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: widget.separatorPadding / 2,
-                        ),
-                        child: widget.itemBuilder != null
-                            ? widget.itemBuilder!(
-                                context,
-                                date,
-                                isSelected,
-                                isDisabledDay,
-                                isToday,
-                                () => _onDateChanged(date),
-                              )
-                            : DayWidget(
-                                date: date,
-                                isDisabled: isDisabledDay,
-                                isSelectedDay: isSelected,
-                                isToday: isToday,
-                                onChanged: _onDateChanged,
-                                dayPartsOrder: widget.dayPartsOrder,
-                                locale: widget.locale,
-                              ),
-                      );
+                          return Padding(
+                            key: ValueKey<DateTime>(date.toDateOnly()),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: widget.separatorPadding / 2,
+                            ),
+                            child: widget.itemBuilder != null
+                              ? widget.itemBuilder!(
+                                  context,
+                                  date,
+                                  isSelected,
+                                  isDisabledDay,
+                                  isToday,
+                                  () => _onDateChanged(date),
+                                )
+                              : DayWidget(
+                                  date: date,
+                                  isDisabled: isDisabledDay,
+                                  isSelectedDay: isSelected,
+                                  isToday: isToday,
+                                  onChanged: _onDateChanged,
+                                  dayPartsOrder: widget.dayPartsOrder,
+                                  locale: widget.locale,
+                                ),
+                          );
+                        case EasyDateTimeLinePickerMode.months:
+                          final date =
+                            DateUtils.addMonthsToMonthDate(widget.firstDate, index);
+
+                          final isSelected =
+                            DateUtils.isSameMonth(widget.focusedDate, date);
+
+                          // flag indicating whether the day is disabled or not.
+                          final isDisabledDay =
+                            widget.disableStrategy.isDisabled(date);
+
+                          // flag indicating whether the day is current day or not.
+                          final isThisMonth =
+                            DateUtils.isSameMonth(widget.currentDate, date);
+
+                          return Padding(
+                            key: ValueKey<DateTime>(date.toDateOnly()),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: widget.separatorPadding / 2,
+                            ),
+                            child: widget.itemBuilder != null
+                              ? widget.itemBuilder!(
+                                  context,
+                                  date,
+                                  isSelected,
+                                  isDisabledDay,
+                                  isThisMonth,
+                                  () => _onDateChanged(date),
+                                )
+                              : MonthWidget(
+                                  date: date,
+                                  isDisabled: isDisabledDay,
+                                  isSelectedDay: isSelected,
+                                  isToday: isThisMonth,
+                                  onChanged: _onDateChanged,
+                                  locale: widget.locale,
+                                ),
+                          );
+                      }
                     },
                     itemCount: _itemCount,
                   ),
